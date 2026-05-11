@@ -1,0 +1,36 @@
+node_modules
+dist
+dist-ssr
+*.local
+.DS_Store
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Redundant mockup archive — the same content is extracted alongside it as PNGs
+mockups/Archive.zip
+
+# CDK staging output (also ignored by infra/.gitignore, listed here for clarity)
+cdk.out/
+.cdk.staging/
+
+# TypeScript incremental build info
+*.tsbuildinfo

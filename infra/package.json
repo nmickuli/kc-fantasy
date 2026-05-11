@@ -1,0 +1,29 @@
+{
+  "name": "kc-fantasy-infra",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Temporary AWS CDK app for hosting the KC Current Fantasy prototype on S3 + CloudFront. Throw-away — tear down with `npm run destroy` once the project moves to Amplify.",
+  "bin": {
+    "kc-fantasy-infra": "bin/kc-fantasy.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "synth": "cdk synth",
+    "diff": "cdk diff",
+    "bootstrap": "cdk bootstrap",
+    "deploy": "cd .. && npm run build && cd infra && cdk deploy",
+    "destroy": "cdk destroy"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "aws-cdk": "^2.180.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.3"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.180.0",
+    "constructs": "^10.4.2",
+    "source-map-support": "^0.5.21"
+  }
+}

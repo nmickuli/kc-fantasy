@@ -1,0 +1,102 @@
+@import "tailwindcss";
+@import "./fonts.css";
+
+/*
+ * Design tokens — extracted from the KC Current Fantasy Figma.
+ * Variable names map directly to Tailwind v4 utility classes:
+ *   --color-brand-teal      → bg-brand-teal, text-brand-teal, border-brand-teal
+ *   --font-display          → font-display
+ *   --radius-card           → rounded-card
+ *   --shadow-accent-glow    → shadow-accent-glow
+ *   --tracking-playername   → tracking-playername
+ *
+ * DIN 2014 is registered in fonts.css from /public/fonts/. Montserrat
+ * (Google Fonts CDN) is the fallback for any missing glyphs.
+ */
+@theme {
+  /* Brand */
+  --color-brand-teal: #5cb6b6;
+  --color-brand-teal-deep: #3c8a8a;
+  --color-brand-accent: #62cbc9;
+
+  /* Surfaces — dark navy used for welcome card, profile card, picker modal */
+  --color-surface: #081f2c;
+  --color-surface-translucent: rgba(8, 31, 44, 0.68);
+
+  /* Pitch greens */
+  --color-grass: #5d890f;
+  --color-grass-lite: #80a53f;
+
+  /* Text colors named by where they're applied */
+  --color-on-surface: #ffffff;
+  --color-on-accent: #081f2c;
+  --color-muted: #c8d4dc;
+
+  /* Validation states */
+  --color-state-selected: #62cbc9;
+  --color-state-over-budget: #e94545;
+
+  /* Fonts */
+  --font-display: "Custom Current Type", sans-serif;
+  --font-body: "DIN 2014", Montserrat, sans-serif;
+
+  /* Radii */
+  --radius-card: 8px;
+  --radius-button: 7px;
+  --radius-pill: 9999px;
+
+  /* Glow shadows */
+  --shadow-card-glow: 0 0 12px 1px rgba(255, 255, 255, 0.4);
+  --shadow-accent-glow: 0 0 12px 1px #62cbc9;
+
+  /* From Figma — player list row name treatment */
+  --tracking-playername: 0.77px;
+
+  /* Motion — subtle, fast (under 250ms) so the demo never feels sluggish.
+     Opacity-only keeps these compatible with Tailwind's translate-based
+     positioning on cards (the modal cards use `-translate-x-1/2` for X
+     centering, which would fight a transform-based animation). */
+  --animate-fade-in: fade-in 240ms ease-out;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply font-body text-on-surface bg-brand-teal;
+    /* Swirl pattern lands once pull-assets.sh runs; silent 404 + solid teal otherwise. */
+    background-image: url('/assets/bg-pattern.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+  }
+
+  /* Prevent mobile tap-highlight flashes on interactive elements */
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Respect reduced-motion preferences — disable all animation and shrink
+     transition durations to effectively zero. Layout still works correctly;
+     just the easing/fade-in goes away. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
