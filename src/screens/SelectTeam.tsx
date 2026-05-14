@@ -31,8 +31,8 @@ import type { Player, Position, Section, SlotKey } from '@/types';
  *   - "Confirm Team Selection" button at card-y 395, 290×38 (was 362 in the
  *     Figma empty frame; pushed down 33px to clear the bench filled-state
  *     price labels). Disabled (50% opacity) until all 6 slots are filled —
- *     then lights up fully but `onClick` is intentionally a no-op for v1
- *     (per scope, there's no post-confirm destination yet).
+ *     then lights up fully and navigates to /home (the post-onboarding
+ *     landing page added when the Home screen shipped).
  *
  * State interactions:
  *   - Empty slot tap → SET_ACTIVE_SLOT then navigate to `/picker/:s/:p`.
@@ -150,11 +150,13 @@ export default function SelectTeam() {
           />
         </div>
 
-        {/* Confirm button — lights up at full opacity when team is complete,
-            but `onClick` is intentionally a no-op (per current scope). */}
+        {/* Confirm button — lights up at full opacity when team is complete
+            and navigates to /home. Disabled (50% opacity) until all 6 slots
+            are filled. */}
         <button
           type="button"
           disabled={!teamComplete}
+          onClick={() => teamComplete && navigate('/home')}
           className={`absolute left-1/2 -translate-x-1/2 top-[395px] w-[290px] h-[38px] flex items-center justify-center bg-brand-accent text-on-accent rounded-button font-body font-bold text-[14px] capitalize whitespace-nowrap transition-opacity duration-300 ease-out ${
             teamComplete ? 'active:opacity-90' : 'opacity-50 cursor-not-allowed'
           }`}

@@ -4,6 +4,9 @@ import TeamName from '@/screens/TeamName';
 import SelectTeam from '@/screens/SelectTeam';
 import PlayerPicker from '@/screens/PlayerPicker';
 import PlayerProfile from '@/screens/PlayerProfile';
+import Home from '@/screens/Home';
+import Rules from '@/screens/Rules';
+import Help from '@/screens/Help';
 
 function NotFound() {
   return (
@@ -27,6 +30,9 @@ export default function App() {
         <Route path="/select-team"               element={<SelectTeam />} />
         <Route path="/picker/:section/:position" element={<PlayerPicker />} />
         <Route path="/player/:playerId"          element={<PlayerProfile />} />
+        <Route path="/home"                      element={<Home />} />
+        <Route path="/rules"                     element={<Rules />} />
+        <Route path="/help"                      element={<Help />} />
         <Route path="*"                          element={<NotFound />} />
       </Routes>
     </div>

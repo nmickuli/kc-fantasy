@@ -1,4 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
+import OpponentCrest from '@/components/OpponentCrest';
 import ScreenHeader from '@/components/ScreenHeader';
 import { PLAYERS_BY_ID } from '@/data/players';
 import { useTeamSelection } from '@/state/TeamSelectionContext';
@@ -226,34 +227,4 @@ function titleCase(code: string): string {
   // match Figma's mixed-case rendering ("Por (H)", "Chi (A)").
   if (!code) return code;
   return code[0] + code.slice(1).toLowerCase();
-}
-
-/**
- * Stylized opponent crest — a shield silhouette with the 3-letter team code.
- * We deliberately don't pull individual NWSL team bitmaps from Figma for v1;
- * a styled shield is consistent across all 8+ possible opponents and reads as
- * a deliberate prototype choice rather than missing assets.
- */
-function OpponentCrest({ code }: { code: string }) {
-  return (
-    <svg viewBox="0 0 24 28" className="size-full" aria-hidden="true">
-      <path
-        d="M3 2 Q3 0 5 0 H19 Q21 0 21 2 V15 Q21 23 12 27 Q3 23 3 15 Z"
-        fill="rgba(98,203,201,0.25)"
-        stroke="#62cbc9"
-        strokeWidth="1"
-      />
-      <text
-        x="12"
-        y="17"
-        textAnchor="middle"
-        fontSize="7"
-        fontWeight="700"
-        fill="#ffffff"
-        style={{ fontFamily: 'var(--font-body)' }}
-      >
-        {code}
-      </text>
-    </svg>
-  );
 }

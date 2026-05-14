@@ -11,19 +11,29 @@ http://localhost:5173.
 **Screens implemented:**
 - [x] Welcome — `src/screens/Welcome.tsx` (full-bleed photo, fixed Figma px coords)
 - [x] Team name — `src/screens/TeamName.tsx` (input bound directly to context state; submit trims and navigates to `/select-team`)
-- [x] Select team — `src/screens/SelectTeam.tsx` (pitch + 3 starter slots + 3 bench slots + dynamic budget readout + Confirm button that lights up at full opacity when `canConfirmTeam(state)` is true, no-op `onClick` per current scope)
+- [x] Select team — `src/screens/SelectTeam.tsx` (pitch + 3 starter slots + 3 bench slots + dynamic budget readout + Confirm button that navigates to `/home` once all 6 slots are filled)
 - [x] Player picker — `src/screens/PlayerPicker.tsx` (modal-card with filter pills defaulting to slot's position, scrollable list, +/row-tap navigation)
 - [x] Player profile — `src/screens/PlayerProfile.tsx` (modal-card with hero photo, recent-form 4-card carousel, Match Day + Season stat cards, Select button with `Selected ✓` disabled state for already-picked players)
+- [x] Home — `src/screens/Home.tsx` (post-onboarding landing with two variants — upcoming and active-game — picked from fixture data; URL `?match=upcoming|live` forces a variant. Hero match card with internal action button (Edit Team / View Team), live deadline countdown or locked padlock, Match Day Points card in active variant, My Leagues, fixtures carousel with functional chevron arrows, Rules/Help footer)
+- [x] Rules — `src/screens/Rules.tsx` (How to Play + Scoring scrollable rules list)
+- [x] Help — `src/screens/Help.tsx` (HELP & FAQS — single card with multi-open accordion items; CSS grid-rows trick for smooth height animation without measuring content)
 
 **Out of scope per CLAUDE.md** (intentionally not implemented even though the
 Figma frames hint at them): Captain toggle, Substitute button, Transfer button,
-Active Game variant of the profile, post-confirm destination after the team is
-complete.
+Active Game variant of the profile, and the full Leagues create/join/share flow
+(the + button on Home is a no-op for v1).
 
 **Shared components introduced this session:**
 - `src/components/ScreenHeader.tsx` — the "FANTASY FOOTBALL" / "BUILD YOUR DREAM TEAM" heading, reused across TeamName, SelectTeam, Picker, Profile.
 - `src/components/Slot.tsx` — the 80×80 round slot with empty/filled variants (used 6× per SelectTeam render).
+- `src/components/OpponentCrest.tsx` — stylized SVG shield with 3-letter team code. Used by PlayerProfile's recent-form cards, the Home hero match card, and the FixtureCard variant.
+- `src/components/MatchCard.tsx` — exports both `HeroMatchCard` (340×130 with crests and date) and `FixtureCard` (95×119 compact card for the horizontal carousel). FixtureCard branches on `status` (`final` / `live` / `upcoming`) and adds a LIVE badge with a pulsing dot for in-progress matches.
+- `src/components/LeagueRow.tsx` — one league entry inside the My Leagues card on Home.
 - `src/utils/playerPhoto.ts` — maps a `PlayerId` to a photo asset URL. 5 real KC Current photos ship in `public/assets/player-*.png`; the 11 other players in `players.ts` hash to one of those 5 deterministically.
+
+**Mock data added for Home:**
+- `src/data/matches.ts` — 5 fixtures spanning the recent past (MD 8-10 final), a live match (MD 11), and an upcoming one (MD 12 vs NC Courage). Dates are computed as offsets from `Date.now()` at module load so the deadline countdown reads ~3 days out regardless of when the demo runs.
+- `src/data/leagues.ts` — one mock league (`KC Current League`, 156 teams, rank #1) so the My Leagues card has a single populated row to display.
 
 **Motion (polish pass):**
 - `--animate-fade-in` (240ms ease-out opacity 0→1), defined in `index.css` under `@theme`. Applied to every screen's `<main>` so routes mount with a soft fade rather than a hard snap. Also applied to the Profile dim overlay (so it doesn't flash) and to the picker's list `<ul>` (keyed on the filter, so changing pills re-runs the fade and softly refreshes the list).
