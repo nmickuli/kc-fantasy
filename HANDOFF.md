@@ -17,6 +17,7 @@ http://localhost:5173.
 - [x] Home — `src/screens/Home.tsx` (post-onboarding landing with two variants — upcoming and active-game — picked from fixture data; URL `?match=upcoming|live` forces a variant. Hero match card with internal action button (Edit Team / View Team), live deadline countdown or locked padlock, Match Day Points card in active variant, My Leagues, fixtures carousel with functional chevron arrows, Rules/Help footer)
 - [x] Rules — `src/screens/Rules.tsx` (How to Play + Scoring scrollable rules list)
 - [x] Help — `src/screens/Help.tsx` (HELP & FAQS — single card with multi-open accordion items; CSS grid-rows trick for smooth height animation without measuring content)
+- [x] Team View — `src/screens/TeamView.tsx` (read-only drill-down of the user's team for one match; three variants — upcoming/active/previous — picked from `?md=N` or `?match=…`. Captain marker on the M starter slot; per-slot match-day points distributed proportionally from the fixture total. Functional `<` `>` chevrons navigate to the adjacent fixture. Edit Team button enabled only on upcoming.)
 
 **Out of scope per CLAUDE.md** (intentionally not implemented even though the
 Figma frames hint at them): Captain toggle, Substitute button, Transfer button,
@@ -27,7 +28,11 @@ Active Game variant of the profile, and the full Leagues create/join/share flow
 - `src/components/ScreenHeader.tsx` — the "FANTASY FOOTBALL" / "BUILD YOUR DREAM TEAM" heading, reused across TeamName, SelectTeam, Picker, Profile.
 - `src/components/Slot.tsx` — the 80×80 round slot with empty/filled variants (used 6× per SelectTeam render).
 - `src/components/OpponentCrest.tsx` — stylized SVG shield with 3-letter team code. Used by PlayerProfile's recent-form cards, the Home hero match card, and the FixtureCard variant.
-- `src/components/MatchCard.tsx` — exports both `HeroMatchCard` (340×130 with crests and date) and `FixtureCard` (95×119 compact card for the horizontal carousel). FixtureCard branches on `status` (`final` / `live` / `upcoming`) and adds a LIVE badge with a pulsing dot for in-progress matches.
+- `src/components/MatchCard.tsx` — exports both `HeroMatchCard` (340×130 with crests and date, with the action button INSIDE the card) and `FixtureCard` (95×119 compact card for the horizontal carousel). FixtureCard branches on `status` (`final` / `live` / `upcoming`) and adds a LIVE badge with a pulsing dot for in-progress matches.
+- `src/components/MatchSummary.tsx` — cyan match-info card used on TeamView. Renders crests + score (active/previous) or kickoff time (upcoming), plus optional `<` `>` chevrons for navigating between fixtures. Status badge ("LIVE" / "Full-Time") on the bottom row.
+- `src/components/TeamSlot.tsx` — read-only player slot used on TeamView. Same 80×80 photo + name pattern as `Slot`, but with optional captain marker (white pill with "C" in the top-right) and optional match-day points line (replaces the price).
+- `src/components/DeadlinePill.tsx` — extracted from Home so TeamView can also use it. Two variants: counting (clock icon + live countdown) and locked (padlock icon + static text).
+- `src/components/MatchDayPointsCard.tsx` — extracted from Home so TeamView can also use it. Dark-navy card with the running points as a big italic display-font number.
 - `src/components/LeagueRow.tsx` — one league entry inside the My Leagues card on Home.
 - `src/utils/playerPhoto.ts` — maps a `PlayerId` to a photo asset URL. 5 real KC Current photos ship in `public/assets/player-*.png`; the 11 other players in `players.ts` hash to one of those 5 deterministically.
 

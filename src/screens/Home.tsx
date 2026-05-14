@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import DeadlinePill from '@/components/DeadlinePill';
+import MatchDayPointsCard from '@/components/MatchDayPointsCard';
 import { FixtureCard, HeroMatchCard } from '@/components/MatchCard';
 import LeagueRow from '@/components/LeagueRow';
-import { FIXTURES, deadlineFor } from '@/data/matches';
-import type { Fixture } from '@/data/matches';
+import { FIXTURES, deadlineFor, pickFixture, variantOf } from '@/data/matches';
 import { LEAGUES } from '@/data/leagues';
 
 /**
@@ -57,41 +58,41 @@ import { LEAGUES } from '@/data/leagues';
  *     for "Xd Yh Zm" formatting; seconds would just be wasted reconciles).
  *
  * Navigation:
- *   - Edit Team / View Team → /select-team (re-enter the picker flow; for
- *     v1 this navigates to the same edit screen for both variants, since
- *     we don't have a separate read-only Team View screen yet).
+ *   - Edit Team / View Team → /team-view (the read-only drill-down for
+ *     this match day; from there the upcoming variant has its own Edit
+ *     Team button that takes the user into /select-team).
  *   - Rules → /rules.
  *   - Help → /help.
  */
 export default function Home() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const forcedVariant = searchParams.get('match'); // 'live' | 'upcoming' | null
 
-  const { fixture: currentMatch, isLive } = pickCurrentMatch(forcedVariant);
+  const currentMatch = pickFixture(searchParams);
+  const isLive = variantOf(currentMatch) === 'active';
   const deadlineText = useCountdown(deadlineFor(currentMatch.kickoffAt));
+
+  // Pass the currently-displayed matchDay through to TeamView so the
+  // two screens stay in sync if the user is demo-ing a non-default
+  // variant via `?match=…` or `?md=…`.
+  function navToTeamView() {
+    navigate(`/team-view?md=${currentMatch.matchDay}`);
+  }
 
   return (
     <main className="relative w-full min-h-screen overflow-hidden animate-fade-in pb-[40px]">
       <HeroMatchCard
         fixture={currentMatch}
         actionLabel={isLive ? 'View Team' : 'Edit Team'}
-        onAction={() => navigate('/select-team')}
+        onAction={navToTeamView}
       />
 
       {isLive ? (
         <>
-          {/* Match Day Points — only in active game variant. The running
-              fantasy points for the in-progress match, big italic display
-              font, cyan accent. Sits between hero and deadline pill. */}
-          <MatchDayPointsCard points={currentMatch.points ?? 0} />
-
-          {/* Locked deadline pill — deadline has passed; lock icon
-              instead of clock; text reads "Deadline 0d 0h 0m". */}
+          <MatchDayPointsCard points={currentMatch.points ?? 0} top={170} />
           <DeadlinePill top={250} variant="locked" text="Deadline 0d 0h 0m" />
         </>
       ) : (
-        /* Upcoming variant — clock icon, live countdown. */
         <DeadlinePill top={170} variant="counting" text={`Deadline ${deadlineText}`} />
       )}
 
@@ -126,95 +127,7 @@ export default function Home() {
   );
 }
 
-/* --- Variant selection ----------------------------------------------------- */
-
-function pickCurrentMatch(forced: string | null): { fixture: Fixture; isLive: boolean } {
-  const live = FIXTURES.find((f) => f.status === 'live');
-  const upcoming = FIXTURES.find((f) => f.status === 'upcoming');
-
-  if (forced === 'upcoming' && upcoming) {
-    return { fixture: upcoming, isLive: false };
-  }
-  if (forced === 'live' && live) {
-    return { fixture: live, isLive: true };
-  }
-
-  // Default: prefer live over upcoming so the demo lands on the richer
-  // active-game variant. Falls back gracefully if there's no live match.
-  if (live) return { fixture: live, isLive: true };
-  if (upcoming) return { fixture: upcoming, isLive: false };
-  // Edge case: no live or upcoming. Use the most-recent fixture.
-  return { fixture: FIXTURES[FIXTURES.length - 1], isLive: false };
-}
-
 /* --- Inline subcomponents -------------------------------------------------- */
-
-function MatchDayPointsCard({ points }: { points: number }) {
-  return (
-    <section
-      className="absolute left-1/2 -translate-x-1/2 top-[170px] w-[340px] h-[70px] bg-surface rounded-card shadow-accent-glow flex flex-col items-center justify-center gap-[2px]"
-      aria-label="Match Day Points"
-    >
-      <p className="font-body text-[12px] leading-none text-on-surface">Match Day Points</p>
-      <p className="font-display italic text-[28px] leading-none text-brand-accent">{points}</p>
-    </section>
-  );
-}
-
-interface DeadlinePillProps {
-  top: number;
-  variant: 'counting' | 'locked';
-  text: string;
-}
-
-function DeadlinePill({ top, variant, text }: DeadlinePillProps) {
-  return (
-    <div
-      className="absolute left-1/2 -translate-x-1/2 w-[340px] h-[60px] bg-brand-accent rounded-card flex items-center justify-center gap-[12px]"
-      style={{ top }}
-      role="status"
-      aria-label={text}
-    >
-      {variant === 'counting' ? (
-        <ClockIcon />
-      ) : (
-        <LockIcon />
-      )}
-      <p className="font-body font-bold text-[18px] leading-none text-on-accent whitespace-nowrap">
-        {text}
-      </p>
-    </div>
-  );
-}
-
-function ClockIcon() {
-  return (
-    <svg viewBox="0 0 32 32" className="w-[24px] h-[24px] text-on-accent" aria-hidden="true">
-      <circle cx="16" cy="16" r="11" fill="none" stroke="currentColor" strokeWidth="2.2" />
-      <line x1="16" y1="16" x2="16" y2="9" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-      <line x1="16" y1="16" x2="21" y2="18.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function LockIcon() {
-  return (
-    <svg viewBox="0 0 32 32" className="w-[24px] h-[24px] text-on-accent" aria-hidden="true">
-      {/* Shackle */}
-      <path
-        d="M11 14 V11 a5 5 0 0 1 10 0 V14"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-      />
-      {/* Body */}
-      <rect x="9" y="14" width="14" height="11" rx="1.5" fill="currentColor" />
-      {/* Keyhole */}
-      <circle cx="16" cy="19" r="1.4" fill="var(--color-brand-accent)" />
-    </svg>
-  );
-}
 
 function MyLeaguesCard({ top }: { top: number }) {
   return (
